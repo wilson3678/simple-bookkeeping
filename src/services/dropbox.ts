@@ -11,7 +11,7 @@ export const CLIENT_ID = 'oa453zne5pnx0u4';
 export class DropboxService {
     private dbx: Dropbox | null = null;
     private auth: DropboxAuth | null = null;
-    private clientId: string | null = null;
+
     private currentProfile: string = 'Default';
 
     constructor() {
@@ -24,7 +24,6 @@ export class DropboxService {
 
     // Step 1: Initialize Auth with User's App Key
     initializeAuth(clientId: string = CLIENT_ID) {
-        this.clientId = clientId;
         this.auth = new DropboxAuth({
             clientId: clientId,
         });
@@ -194,7 +193,6 @@ export class DropboxService {
         try {
             await this.dbx.filesMoveV2({ from_path: oldPath, to_path: newPath });
         } catch (error: any) {
-            const str = JSON.stringify(error);
             // If old folder not found, nothing to move. 
             // If destination exists (shouldn't happen if we checked profiles, but maybe race condition), we might have an issue.
             // But mainly we care about "path_not_found" for source.
