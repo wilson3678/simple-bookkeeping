@@ -94,6 +94,11 @@ function App() {
       await dropboxService.logout();
       setIsAuthenticated(false);
       setTransactions([]);
+
+      // Ask if they want to logout from Dropbox provider as well
+      if (confirm('已清除本機登入資訊。\n\n是否要同時開啟 Dropbox 官網登出頁面？\n(若在公用電腦上使用，建議執行此步驟以完全登出)')) {
+        window.open('https://www.dropbox.com/logout', '_blank');
+      }
     }
   };
 
@@ -104,8 +109,16 @@ function App() {
       let exists = false;
       try {
         exists = await dropboxService.checkFileExists('bookkeeping_data.json');
-      } catch (error) {
+      } catch (error: any) {
         console.error('Check file existence failed:', error);
+
+        const status = error.status || (error.reponse && error.response.status);
+        if (status === 401 || status === 400) {
+          alert('授權已過期，請重新登入 Dropbox。');
+          handleLogout();
+          return;
+        }
+
         alert('無法檢查檔案狀態 (可能是網路或 Dropbox 連線問題)。\n為保護您的資料，將暫停載入。\n請重新整理再試。');
         setIsLoading(false);
         return; // STOP here to protect data
@@ -142,9 +155,21 @@ function App() {
         setSettings(DEFAULT_SETTINGS);
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load data', error);
-      alert('載入資料時發生錯誤');
+
+      // Check for Auth Error (401) or Invalid Token
+      // The Dropbox SDK might return error.status or error.error.error_summary
+      const status = error.status || (error.reponse && error.response.status);
+      const errorTag = error.error?.['.tag'];
+
+      // If unauthorized or bad token, force logout so user can re-login
+      if (status === 401 || status === 400 || errorTag === 'invalid_access_token') {
+        alert('授權已過期，請重新登入 Dropbox。');
+        handleLogout(); // This cleans up local storage and state
+      } else {
+        alert('載入資料時發生錯誤');
+      }
     } finally {
       setIsLoading(false);
     }

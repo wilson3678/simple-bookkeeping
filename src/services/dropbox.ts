@@ -17,8 +17,18 @@ export class DropboxService {
     constructor() {
         // Try to restore session
         const savedToken = localStorage.getItem('dropbox_token');
+        const savedRefreshToken = localStorage.getItem('dropbox_refresh_token');
+
         if (savedToken) {
-            this.dbx = new Dropbox({ accessToken: savedToken });
+            if (savedRefreshToken) {
+                this.dbx = new Dropbox({
+                    accessToken: savedToken,
+                    refreshToken: savedRefreshToken,
+                    clientId: CLIENT_ID,
+                });
+            } else {
+                this.dbx = new Dropbox({ accessToken: savedToken });
+            }
         }
     }
 
@@ -81,7 +91,7 @@ export class DropboxService {
                 const accessToken = result.access_token;
                 const refreshToken = result.refresh_token;
 
-                this.setAccessToken(accessToken);
+                this.setAccessToken(accessToken, refreshToken);
 
                 // Save for persistence
                 localStorage.setItem('dropbox_token', accessToken);
@@ -110,8 +120,16 @@ export class DropboxService {
         return false;
     }
 
-    setAccessToken(token: string) {
-        this.dbx = new Dropbox({ accessToken: token });
+    setAccessToken(token: string, refreshToken?: string) {
+        if (refreshToken) {
+            this.dbx = new Dropbox({
+                accessToken: token,
+                refreshToken: refreshToken,
+                clientId: CLIENT_ID,
+            });
+        } else {
+            this.dbx = new Dropbox({ accessToken: token });
+        }
     }
 
     isAuthenticated(): boolean {
