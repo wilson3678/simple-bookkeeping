@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Transaction, TransactionType } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { PlusCircle, ArrowRightLeft, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
+import Combobox from './Combobox';
 
 interface TransactionFormProps {
     onSubmit: (transactions: Transaction[]) => void;
@@ -244,17 +245,13 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                     <label className={`block text-xs font-black mb-2 tracking-widest uppercase ${type === 'INCOME' ? 'text-[#8B001D]' : 'text-black'}`}>
                         {getSourceLabel()}
                     </label>
-                    <input
-                        type="text"
-                        list="source-options"
+                    <Combobox
                         value={source}
-                        onChange={(e) => setSource(e.target.value)}
-                        className="w-full p-3 bg-transparent border-b-2 border-gray-400 focus:border-black focus:outline-none transition-colors rounded-none placeholder-gray-500 text-black font-bold text-lg"
+                        onChange={setSource}
+                        options={getSourceOptions()}
                         placeholder={type === 'EXPENSE' ? "例如: 國泰PLAY" : type === 'INCOME' ? "例如: 薪資" : "例如: 銀行帳戶"}
+                        className={type === 'INCOME' ? '' : ''} // Keep default styling from internally
                     />
-                    <datalist id="source-options">
-                        {getSourceOptions().map((s, i) => <option key={i} value={s} />)}
-                    </datalist>
                 </div>
 
                 {/* Amount */}
@@ -289,30 +286,24 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                         <label className={`block text-xs font-black mb-2 tracking-widest uppercase ${type === 'INCOME' ? 'text-black' : type === 'TRANSFER' ? 'text-[#1a472a]' : 'text-black'}`}>
                             {getDestinationLabel()}
                         </label>
-                        <input
-                            type="text"
-                            list="destination-options"
+                        <Combobox
                             value={destination}
-                            onChange={(e) => setDestination(e.target.value)}
-                            className="w-full p-3 bg-transparent border-b-2 border-gray-400 focus:border-black focus:outline-none transition-colors rounded-none placeholder-gray-500 text-black font-bold text-lg"
+                            onChange={setDestination}
+                            options={getDestinationOptions()}
                             placeholder={type === 'EXPENSE' ? "例如: 晚餐" : type === 'INCOME' ? "存入帳戶" : "轉入帳戶"}
                         />
-                        <datalist id="destination-options">
-                            {getDestinationOptions().map((s, i) => <option key={i} value={s} />)}
-                        </datalist>
                     </div>
                 ) : (
                     // Split Mode UI (Expense Only)
                     <>
                         <div className="p-6 bg-[#ebe9e4] border-2 border-gray-400">
                             <label className="block text-xs font-black text-black mb-4 tracking-widest uppercase border-b border-black pb-1 inline-block">Item 1</label>
-                            <input
-                                type="text"
-                                list="destination-options"
+                            <Combobox
                                 value={destinationA}
-                                onChange={(e) => setDestinationA(e.target.value)}
-                                className="w-full p-2 mb-4 bg-transparent border-b-2 border-gray-400 text-lg focus:outline-none focus:border-black text-black font-bold"
+                                onChange={setDestinationA}
+                                options={getDestinationOptions()}
                                 placeholder="目的 A"
+                                className="mb-4"
                             />
                             <input
                                 type="number"
@@ -324,13 +315,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                         </div>
                         <div className="p-6 bg-[#ebe9e4] border-2 border-gray-400">
                             <label className="block text-xs font-black text-black mb-4 tracking-widest uppercase border-b border-black pb-1 inline-block">Item 2</label>
-                            <input
-                                type="text"
-                                list="destination-options"
+                            <Combobox
                                 value={destinationB}
-                                onChange={(e) => setDestinationB(e.target.value)}
-                                className="w-full p-2 mb-4 bg-transparent border-b-2 border-gray-400 text-lg focus:outline-none focus:border-black text-black font-bold"
+                                onChange={setDestinationB}
+                                options={getDestinationOptions()}
                                 placeholder="目的 B"
+                                className="mb-4"
                             />
                             <input
                                 type="number"
@@ -340,26 +330,19 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
                                 placeholder="0"
                             />
                         </div>
-                        <datalist id="destination-options">
-                            {getDestinationOptions().map((s, i) => <option key={i} value={s} />)}
-                        </datalist>
+                        {/* Remove datalist as now handled by Combobox internal */}
                     </>
                 )}
 
                 {/* Note */}
                 <div className="md:col-span-2">
                     <label className="block text-xs font-black text-black mb-2 tracking-widest uppercase">Note 備註</label>
-                    <input
-                        type="text"
-                        list="note-options"
+                    <Combobox
                         value={summary}
-                        onChange={(e) => setSummary(e.target.value)}
-                        className="w-full p-3 bg-transparent border-b-2 border-gray-400 focus:border-black focus:outline-none transition-colors rounded-none placeholder-gray-500 text-black font-bold text-lg"
+                        onChange={setSummary}
+                        options={initialNotes}
                         placeholder="例如: 午餐"
                     />
-                    <datalist id="note-options">
-                        {initialNotes.map((s, i) => <option key={i} value={s} />)}
-                    </datalist>
                 </div>
 
                 {/* Payer (Only relevant for Expense usually, maybe Transfer?) */}

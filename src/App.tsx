@@ -5,7 +5,7 @@ import TransactionList from './components/TransactionList';
 import SettingsDialog from './components/SettingsDialog';
 import Dashboard from './components/Dashboard';
 import { dropboxService } from './services/dropbox';
-import { Wallet, LogIn, LogOut, Settings, Edit2, Trash2 } from 'lucide-react';
+import { Wallet, LogIn, LogOut, Settings, Edit2, Trash2, ChevronDown } from 'lucide-react';
 
 const DEFAULT_SETTINGS: AppSettings = {
   commonSources: ['國泰PLAY(街口)', '現金', '中信LINE PAY', '台新GoGo', '聯邦賴點卡'],
@@ -348,31 +348,34 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f7f7f7] p-4 md:p-8 font-sans text-[#454545]">
       <div className="max-w-4xl mx-auto">
-        <header className="flex items-center justify-between mb-12 pt-6 border-b border-gray-100 pb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 flex items-center justify-center bg-[#8B001D] text-white rounded-sm shadow-sm">
+        <header className="flex flex-col md:flex-row items-center gap-4 mb-8 pt-6 border-b border-gray-100 pb-6">
+          <div className="flex items-center gap-3 w-full md:w-auto justify-center md:justify-start text-center md:text-left relative">
+            <div className="w-8 h-8 flex items-center justify-center bg-[#8B001D] text-white rounded-sm shadow-sm shrink-0">
               <Wallet size={18} />
             </div>
-            <h1 className="text-xl font-bold text-black tracking-widest font-serif">簡單記帳</h1>
+            <h1 className="text-xl font-bold text-black tracking-widest font-serif whitespace-nowrap">簡單記帳</h1>
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center justify-center gap-3 w-full md:w-auto flex-wrap">
             {/* Profile Selector */}
-            <div className="flex items-center gap-2 mr-2">
-              <select
-                value={currentProfile}
-                onChange={(e) => {
-                  if (e.target.value === 'CREATE_NEW') {
-                    handleCreateProfile();
-                  } else {
-                    handleSwitchProfile(e.target.value);
-                  }
-                }}
-                className="bg-[#faf9f6] border-b-2 border-transparent hover:border-black font-bold text-sm py-1 focus:outline-none cursor-pointer transition border-black max-w-[150px]"
-                style={{ borderBottomWidth: '2px' }}
-              >
-                {profiles.map(p => <option key={p} value={p}>{p}</option>)}
-                <option value="CREATE_NEW">+ 建立新帳本...</option>
-              </select>
+            <div className="flex items-center gap-2">
+              <div className="relative flex items-center">
+                <select
+                  value={currentProfile}
+                  onChange={(e) => {
+                    if (e.target.value === 'CREATE_NEW') {
+                      handleCreateProfile();
+                    } else {
+                      handleSwitchProfile(e.target.value);
+                    }
+                  }}
+                  className="bg-[#faf9f6] appearance-none pl-1 pr-7 border-b-2 border-gray-300 focus:border-black font-bold text-sm py-1 focus:outline-none cursor-pointer transition max-w-[120px] text-ellipsis"
+                >
+                  {profiles.map(p => <option key={p} value={p}>{p}</option>)}
+                  <option value="CREATE_NEW">+ 建立新帳本...</option>
+                </select>
+                <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" size={14} />
+              </div>
 
               {currentProfile !== 'Default' && (
                 <div className="flex gap-1">
@@ -394,19 +397,27 @@ function App() {
               )}
             </div>
 
-            <button
-              onClick={() => setIsSettingsOpen(true)}
-              className="text-gray-600 hover:text-black transition p-1"
-              title="設定"
-            >
-              <Settings size={20} />
-            </button>
-            <div className="text-xs text-[#8B001D] bg-[#faf9f6] border-2 border-gray-400 px-3 py-1 tracking-wider font-bold">
-              {isLoading ? 'SYNC...' : `${transactions.length} 筆`}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="text-gray-600 hover:text-black transition p-2 rounded-full hover:bg-gray-100"
+                title="設定"
+              >
+                <Settings size={20} />
+              </button>
+
+              <div className="text-xs text-[#8B001D] bg-[#faf9f6] border-2 border-gray-400 px-3 py-1 tracking-wider font-bold whitespace-nowrap">
+                {isLoading ? 'SYNC' : `${transactions.length} 筆`}
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="text-gray-600 hover:text-black transition p-2 rounded-full hover:bg-gray-100"
+                title="登出"
+              >
+                <LogOut size={20} />
+              </button>
             </div>
-            <button onClick={handleLogout} className="text-gray-600 hover:text-black transition font-bold border-b-2 border-transparent hover:border-black" title="登出">
-              <LogOut size={20} />
-            </button>
           </div>
         </header>
 
